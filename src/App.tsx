@@ -78,7 +78,7 @@ const App = () => {
           <div className="shrink-0 relative">
             <div className="w-36 h-36 md:w-44 md:h-44 rounded-2xl overflow-hidden ring-1 ring-zinc-700 shadow-2xl shadow-indigo-900/20">
               <img
-                src="../dist/assets/profile.png"
+                src="/profile.jpg"
                 alt="Nabil Kamalludin"
                 className="w-full h-full object-cover"
               />
