@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Github, Linkedin, Mail, ExternalLink, Award, BookOpen, Briefcase, User, ChevronDown } from 'lucide-react'
+import { Github, Linkedin, Mail, ExternalLink, Award, BookOpen, Briefcase, User, ChevronDown, X } from 'lucide-react'
 
 // ── Scroll-aware Navbar ──────────────────────────────────────────────────────
 const Navbar = () => {
@@ -50,8 +50,11 @@ const Section = ({ id, title, children }: { id: string; title?: string; children
 )
 
 // ── Timeline Item ────────────────────────────────────────────────────────────
-const TimelineItem = ({ role, company, period, desc }: { role: string; company: string; period: string; desc?: string }) => (
-  <div className="group relative pl-8 border-l border-zinc-800 hover:border-indigo-500/50 transition-colors duration-300">
+const TimelineItem = ({ role, company, period, desc, images, onClick }: { role: string; company: string; period: string; desc?: string; images?: string[]; onClick?: () => void }) => (
+  <div
+    className={`group relative pl-8 border-l border-zinc-800 hover:border-indigo-500/50 transition-colors duration-300 ${images && images.length > 0 ? 'cursor-pointer' : ''}`}
+    onClick={images && images.length > 0 ? onClick : undefined}
+  >
     <div className="absolute -left-[5px] top-1.5 w-2.5 h-2.5 rounded-full border-2 border-indigo-500 bg-zinc-950 group-hover:bg-indigo-500 transition-colors duration-300" />
     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-1 mb-1">
       <h3 className="text-base font-semibold text-zinc-100 leading-snug">{role}</h3>
@@ -59,11 +62,52 @@ const TimelineItem = ({ role, company, period, desc }: { role: string; company: 
     </div>
     <p className="text-sm text-indigo-400 font-medium mb-2">{company}</p>
     {desc && <p className="text-sm text-zinc-500 leading-relaxed">{desc}</p>}
+    {images && images.length > 0 && (
+      <p className="text-xs text-indigo-400/60 mt-2 italic">📎 Click to view documentation</p>
+    )}
+  </div>
+)
+
+// ── Document Modal ───────────────────────────────────────────────────────────
+const DocumentModal = ({ images, onClose }: { images: string[]; onClose: () => void }) => (
+  <div
+    className="fixed inset-0 z-[100] backdrop-blur-md bg-black/25 flex items-center justify-center"
+    onClick={onClose}
+  >
+    <div
+      className="relative bg-zinc-900 border border-zinc-700/50 rounded-2xl max-w-lg w-[90%] max-h-[80vh] flex flex-col shadow-2xl shadow-black/50"
+      onClick={(e) => e.stopPropagation()}
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-800">
+        <span className="text-sm font-semibold text-zinc-300">Documentation</span>
+        <button
+          onClick={onClose}
+          className="p-1 rounded-md hover:bg-zinc-800 text-zinc-500 hover:text-zinc-100 transition-colors duration-200"
+        >
+          <X size={16} />
+        </button>
+      </div>
+
+      {/* Scrollable image list */}
+      <div className="overflow-y-auto scrollbar-hide p-5 flex flex-col gap-4">
+        {images.map((src, i) => (
+          <img
+            key={i}
+            src={src}
+            alt={`Documentation ${i + 1}`}
+            className="w-full rounded-lg border border-zinc-800"
+          />
+        ))}
+      </div>
+    </div>
   </div>
 )
 
 // ── Main App ─────────────────────────────────────────────────────────────────
 const App = () => {
+  const [activeDocs, setActiveDocs] = useState<string[] | null>(null)
+
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 font-sans antialiased">
       <Navbar />
@@ -83,8 +127,6 @@ const App = () => {
                 className="w-full h-full object-cover"
               />
             </div>
-            {/* Green dot online indicator */}
-            <span className="absolute bottom-2 right-2 w-3.5 h-3.5 bg-emerald-400 rounded-full ring-2 ring-zinc-950" />
           </div>
 
           {/* Text */}
@@ -118,7 +160,7 @@ const App = () => {
               <a href="https://www.linkedin.com/in/nabilkamalludin/" className="p-2.5 rounded-lg border border-zinc-800 hover:border-zinc-600 hover:bg-zinc-800/60 text-zinc-400 hover:text-zinc-100 transition-all duration-200">
                 <Linkedin size={18} />
               </a>
-              <a href={`mailto:[nabilkamalludin@gmail.com]`} className="p-2.5 rounded-lg border border-zinc-800 hover:border-zinc-600 hover:bg-zinc-800/60 text-zinc-400 hover:text-zinc-100 transition-all duration-200">
+              <a href={`mailto:nabilkamalludin@gmail.com`} className="p-2.5 rounded-lg border border-zinc-800 hover:border-zinc-600 hover:bg-zinc-800/60 text-zinc-400 hover:text-zinc-100 transition-all duration-200">
                 <Mail size={18} />
               </a>
             </div>
@@ -140,24 +182,32 @@ const App = () => {
             company="PT Tri Usaha Sejahtera Pratama"
             period="Oct 2025 – Jan 2026"
             desc="Assisted in electrical system planning, maintenance coordination, and technical documentation for industrial projects."
+            images={["https://placehold.co/800x600/1e1e2e/818cf8?text=Certificate+1", "https://placehold.co/800x600/1e1e2e/818cf8?text=Documentation+1"]}
+            onClick={() => setActiveDocs(["https://placehold.co/800x600/1e1e2e/818cf8?text=Certificate+1", "https://placehold.co/800x600/1e1e2e/818cf8?text=Documentation+1"])}
           />
           <TimelineItem
             role="Practicum Assistant Basic Computer Network"
             company="Tidar University"
             period="Aug 2024 – Dec 2024"
             desc="Guided students through network fundamentals, troubleshooting exercises, and practical lab sessions."
+            images={["https://placehold.co/800x600/1e1e2e/818cf8?text=Certificate+1", "https://placehold.co/800x600/1e1e2e/818cf8?text=Documentation+1"]}
+            onClick={() => setActiveDocs(["https://placehold.co/800x600/1e1e2e/818cf8?text=Certificate+1", "https://placehold.co/800x600/1e1e2e/818cf8?text=Documentation+1"])}
           />
           <TimelineItem
             role="Lecturer Assistant Fuzzy Logic"
             company="Tidar University"
             period="Feb 2024 – Jul 2024"
             desc="Supported lecture delivery, prepared learning materials, and mentored students on fuzzy inference systems."
+            images={["https://placehold.co/800x600/1e1e2e/818cf8?text=Certificate+1", "https://placehold.co/800x600/1e1e2e/818cf8?text=Documentation+1"]}
+            onClick={() => setActiveDocs(["https://placehold.co/800x600/1e1e2e/818cf8?text=Certificate+1", "https://placehold.co/800x600/1e1e2e/818cf8?text=Documentation+1"])}
           />
           <TimelineItem
             role="Lecturer & Practicum Assistant Basic Algorithm Programming"
             company="Tidar University"
             period="Aug 2023 – Dec 2023"
             desc="Facilitated programming labs and assisted in teaching algorithmic problem-solving to first-year students."
+            images={["https://placehold.co/800x600/1e1e2e/818cf8?text=Certificate+1", "https://placehold.co/800x600/1e1e2e/818cf8?text=Documentation+1"]}
+            onClick={() => setActiveDocs(["https://placehold.co/800x600/1e1e2e/818cf8?text=Certificate+1", "https://placehold.co/800x600/1e1e2e/818cf8?text=Documentation+1"])}
           />
         </div>
       </Section>
@@ -170,18 +220,24 @@ const App = () => {
             company="Hacktrace Siber Indonesia"
             period="Feb 2026 – Apr 2026"
             desc="Hands-on red team training covering offensive security techniques, penetration testing, and ethical hacking."
+            images={["https://placehold.co/800x600/1e1e2e/818cf8?text=Certificate+RedTeam"]}
+            onClick={() => setActiveDocs(["https://placehold.co/800x600/1e1e2e/818cf8?text=Certificate+RedTeam"])}
           />
           <TimelineItem
             role="Junior Security Operation Center (SOC) Analyst"
             company="Digitalent TSA 2024"
             period="Feb 2024 – May 2024"
             desc="Learned threat detection, incident response, SIEM tools, and SOC monitoring methodologies."
+            images={["https://placehold.co/800x600/1e1e2e/818cf8?text=Certificate+1", "https://placehold.co/800x600/1e1e2e/818cf8?text=Documentation+1"]}
+            onClick={() => setActiveDocs(["https://placehold.co/800x600/1e1e2e/818cf8?text=Certificate+1", "https://placehold.co/800x600/1e1e2e/818cf8?text=Documentation+1"])}
           />
           <TimelineItem
             role="Machine Learning Cohort"
             company="Bangkit Academy"
             period="Aug 2023 – Jan 2024"
             desc="Completed intensive ML program covering supervised learning, computer vision, and TensorFlow deployment."
+            images={["https://placehold.co/800x600/1e1e2e/818cf8?text=Certificate+1", "https://placehold.co/800x600/1e1e2e/818cf8?text=Documentation+1"]}
+            onClick={() => setActiveDocs(["https://placehold.co/800x600/1e1e2e/818cf8?text=Certificate+1", "https://placehold.co/800x600/1e1e2e/818cf8?text=Documentation+1"])}
           />
         </div>
       </Section>
@@ -284,6 +340,11 @@ const App = () => {
           </div>
         </div>
       </footer>
+
+      {/* ── Document Modal ── */}
+      {activeDocs && (
+        <DocumentModal images={activeDocs} onClose={() => setActiveDocs(null)} />
+      )}
     </div>
   )
 }
